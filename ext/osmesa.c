@@ -58,6 +58,7 @@ CreateContext( VALUE self, VALUE format, VALUE sharelist )
   if( !ctx )
     rb_raise(rb_eTypeError, "Error in OSMesaCreateContext");
   DATA_PTR(self) = ctx;
+  rb_iv_set(self, "@format", format);
   return self;
 }
 
@@ -96,19 +97,32 @@ MakeCurrent( VALUE self, VALUE string_buffer, VALUE type, VALUE width, VALUE hei
   GLenum gltype = NUM2INT(type);
   GLsizei glwidth = NUM2UINT(width);
   GLsizei glheight = NUM2UINT(height);
-  void *ptr = StringValuePtr(string_buffer);
   GLboolean res;
-  long int size;
+  GLint format;
+  long int size, pixsize;
 
-  switch( gltype ){
-    case GL_UNSIGNED_BYTE:  size = (long int)glwidth * glheight * sizeof(GLubyte) ; break;
-    case GL_UNSIGNED_SHORT: size = (long int)glwidth * glheight * sizeof(GLushort); break;
-    default :               size = (long int)glwidth * glheight * sizeof(GLfloat) ; break;
+  StringValue(string_buffer);
+
+  format = NUM2INT(rb_iv_get(self, "@format"));
+  switch( format ){
+    case OSMESA_RGBA   : pixsize = 4; break;
+    case OSMESA_BGRA   : pixsize = 4; break;
+    case OSMESA_ARGB   : pixsize = 4; break;
+    case OSMESA_RGB    : pixsize = 3; break;
+    case OSMESA_BGR    : pixsize = 3; break;
+    case OSMESA_RGB_565: pixsize = 2; break;
+    default: pixsize = 4;
   }
+  switch( gltype ){
+    case GL_UNSIGNED_BYTE:  size = (long int)glwidth * glheight * sizeof(GLubyte)  * pixsize; break;
+    case GL_UNSIGNED_SHORT: size = (long int)glwidth * glheight * sizeof(GLushort) * pixsize; break;
+    default :               size = (long int)glwidth * glheight * sizeof(GLfloat)  * pixsize; break;
+  }
+  rb_str_modify(string_buffer);
   if( RSTRING_LEN(string_buffer) < size )
     rb_raise(rb_eArgError, "String buffer is too small: %ld < %ld", RSTRING_LEN(string_buffer), size);
 
-  res = OSMesaMakeCurrent( ctx, ptr, gltype, glwidth, glheight );
+  res = OSMesaMakeCurrent( ctx, RSTRING_PTR(string_buffer), gltype, glwidth, glheight );
   if( res != GL_TRUE )
     rb_raise(rb_eArgError, "Error in OSMesaMakeCurrent");
 
