@@ -1,6 +1,5 @@
 require 'osmesa'
 require 'opengl'
-require 'glu'
 require 'chunky_png'
 
 width, height = 100, 70

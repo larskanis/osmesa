@@ -1,0 +1,7 @@
+--title "OSMesa - Off-screen Rendering interface"
+--no-private
+ext/**/*.c
+lib/**/*.rb
+-
+README.md
+History.md
