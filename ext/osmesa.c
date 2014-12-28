@@ -126,6 +126,7 @@ MakeCurrent( VALUE self, VALUE string_buffer, VALUE type, VALUE width, VALUE hei
   if( res != GL_TRUE )
     rb_raise(rb_eArgError, "Error in OSMesaMakeCurrent");
 
+  rb_iv_set(self, "@buffer", string_buffer);
   return Qnil;
 }
 
