@@ -60,7 +60,9 @@ class TestContext < Minitest::Test
 
     GL.Flush()
 
-    assert_equal "\x80\x90\xa0\xb0" + "\x00\x00\x00\x00" +
-                 "\x00\x00\x00\x00" + "\x80\x90\xa0\xb0", buffer
+    exp = "\x80\x90\xa0\xb0" + "\x00\x00\x00\x00" +
+          "\x00\x00\x00\x00" + "\x80\x90\xa0\xb0"
+
+    assert_equal exp.force_encoding(Encoding::BINARY), buffer.force_encoding(Encoding::BINARY)
   end
 end
