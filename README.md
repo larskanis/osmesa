@@ -4,7 +4,7 @@
 
 Mesa's off-screen rendering interface is used for rendering into user-allocated Ruby string. That is, the GL_FRONT colorbuffer is actually a buffer in main memory, rather than a window on your display. There are no window system or operating system dependencies. One potential application is to use Mesa as an off-line, batch-style renderer.
 
-The OSMesa API provides two basic functions for making off-screen renderings: OSMesa::Context.new() and OSMesa::Context#MakeCurrent(). See [API-docs]{http://www.rubydoc.info/gems/osmesa} for more information about the API functions.
+The OSMesa API provides two basic functions for making off-screen renderings: OSMesa::Context.new() and OSMesa::Context#MakeCurrent(). See [API-docs](http://www.rubydoc.info/gems/osmesa) for more information about the API functions.
 
 
 ## Installation
