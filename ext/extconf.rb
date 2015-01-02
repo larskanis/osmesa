@@ -48,10 +48,12 @@ if enable_config('win32-cross')
     FileUtils.cp "#{recipe.path}/#{dll}", '.', verbose: true
   end
 
-  GCC_SHARED_DLLS = %w[libwinpthread-1.dll libgcc_s_sjlj-1.dll libstdc++-6.dll]
+  GCC_SHARED_DLLS = %w[libwinpthread-1.dll libgcc_s_dw2-1.dll libgcc_s_sjlj-1.dll libgcc_s_seh-1.dll libstdc++-6.dll]
   GCC_SHARED_DLLS.each do |dll|
     cmd = "#{CONFIG['CC']} -print-file-name=#{dll}"
-    puts cmd
+    res = `#{cmd}`.chomp
+    next if dll == res
+    puts "#{cmd} => #{res}"
     FileUtils.cp `#{cmd}`.chomp, '.', verbose: true
   end
 else
