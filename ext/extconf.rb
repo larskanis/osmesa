@@ -16,7 +16,6 @@ if enable_config('win32-cross')
     "--disable-xvmc",
     "--disable-glx",
     "--disable-dri",
-    "--disable-shared-glapi",
     "--disable-egl",
     "--with-dri-drivers=''",
     "--with-egl-platforms=''",
@@ -28,7 +27,8 @@ if enable_config('win32-cross')
     "--enable-osmesa",
     "--enable-gallium-llvm=no",
     "--enable-texture-float",
-    "--enable-static",
+    "--enable-shared",
+    "--enable-shared-glapi",
     "--target=#{recipe.host}",
     "--host=#{recipe.host}",
   ]
@@ -36,19 +36,20 @@ if enable_config('win32-cross')
   checkpoint = File.join(portsdir, "#{recipe.name}-#{recipe.version}-#{recipe.host}.installed")
   unless File.exist?(checkpoint)
     ENV['PKG_CONFIG'] = 'not_avail'
-    ENV['CPPFLAGS'] = '-DBUILD_GL32 -D_GLAPI_NO_EXPORTS'
+    ENV['CPPFLAGS'] = '-D_GLAPI_NO_EXPORTS'
     recipe.cook
     FileUtils.touch checkpoint
   end
   recipe.activate
   dir_config('gl', "#{recipe.path}/include", "#{recipe.path}/lib")
 
-  CONFIG['CC'] = "#{RbConfig::CONFIG["host"]}-g++" # Hack CXX into Makefile for cross compilation
-  CONFIG['LDSHARED'].gsub!('gcc', 'g++') # ensure C++ linker is used, so that libstdc++ is linked static
-  $CPPFLAGS << "-DBUILD_GL32 "
+  MESA_SHARED_DLLS = %w[lib/libOSMesa-8.dll bin/libglapi-0.dll]
+  MESA_SHARED_DLLS.each do |dll|
+    FileUtils.cp "#{recipe.path}/#{dll}", '.', verbose: true
+  end
 
-  WIN32_SHARED_DLLS = %w[libwinpthread-1.dll libgcc_s_sjlj-1.dll libstdc++-6.dll]
-  WIN32_SHARED_DLLS.each do |dll|
+  GCC_SHARED_DLLS = %w[libwinpthread-1.dll libgcc_s_sjlj-1.dll libstdc++-6.dll]
+  GCC_SHARED_DLLS.each do |dll|
     cmd = "#{CONFIG['CC']} -print-file-name=#{dll}"
     puts cmd
     FileUtils.cp `#{cmd}`.chomp, '.', verbose: true
@@ -60,9 +61,7 @@ end
 find_header( 'GL/osmesa.h' ) or
     abort "Can't find the 'GL/osmesa.h' header"
 
-$libs = append_library($libs, "OSMesa")
-
-# have_library( 'OSMesa', 'OSMesaCreateContext', ['GL/osmesa.h'] ) or
-#     abort "Can't find the OSMesa library (libOSMesa)"
+have_library( 'OSMesa', 'OSMesaCreateContext', ['GL/osmesa.h'] ) or
+    abort "Can't find the OSMesa library (libOSMesa)"
 
 create_makefile( "osmesa_ext" )

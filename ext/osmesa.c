@@ -1,10 +1,6 @@
 #include <ruby.h>
 #include <GL/osmesa.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 static VALUE rb_mOSMesa;
 static VALUE rb_cContext;
 
@@ -199,7 +195,3 @@ Init_osmesa_ext()
   rb_define_method( rb_cContext, "Destroy", (VALUE (*)(ANYARGS))DestroyContext, 0 );
   rb_define_method( rb_cContext, "MakeCurrent", (VALUE (*)(ANYARGS))MakeCurrent, 4 );
 }
-
-#ifdef __cplusplus
-}
-#endif

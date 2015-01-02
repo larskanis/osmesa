@@ -9,7 +9,7 @@ end
 
 spec = Gem::Specification.load('osmesa.gemspec')
 
-WIN32_ADDITIONAL_DLLS = %w[libwinpthread-1.dll libgcc_s_sjlj-1.dll libstdc++-6.dll]
+WIN32_ADDITIONAL_DLLS = %w[libOSMesa-8.dll libglapi-0.dll libwinpthread-1.dll libgcc_s_sjlj-1.dll libstdc++-6.dll]
 
 # Rake-compiler task
 Rake::ExtensionTask.new do |ext|
