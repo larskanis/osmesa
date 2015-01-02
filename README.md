@@ -9,15 +9,11 @@ The OSMesa API provides two basic functions for making off-screen renderings: OS
 
 ## Installation
 
-Add this line to your application's Gemfile:
+Install osmesa library and header files:
 
-    gem 'osmesa'
+    sudo apt-get install libosmesa6-dev
 
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
+Install the gem:
 
     $ gem install osmesa
 

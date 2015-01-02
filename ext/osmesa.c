@@ -1,6 +1,10 @@
 #include <ruby.h>
 #include <GL/osmesa.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 static VALUE rb_mOSMesa;
 static VALUE rb_cContext;
 
@@ -20,7 +24,7 @@ alloc_Context( VALUE klass )
 static OSMesaContext
 get_Context( VALUE self )
 {
-  OSMesaContext ctx = DATA_PTR(self);
+  OSMesaContext ctx = (OSMesaContext)DATA_PTR(self);
   if( !ctx )
     rb_raise(rb_eTypeError, "%s is already destroyed", rb_obj_classname(self));
   return ctx;
@@ -149,7 +153,6 @@ GetIntegerv( VALUE self, VALUE pname )
   return INT2NUM(value);
 }
 
-
 void
 Init_osmesa_ext()
 {
@@ -188,11 +191,15 @@ Init_osmesa_ext()
   rb_define_const(rb_mOSMesa, "OSMESA_MAX_WIDTH", INT2FIX(OSMESA_MAX_WIDTH));
   rb_define_const(rb_mOSMesa, "OSMESA_MAX_HEIGHT", INT2FIX(OSMESA_MAX_HEIGHT));
 
-  rb_define_singleton_method( rb_mOSMesa, "GetIntegerv", GetIntegerv, 1 );
+  rb_define_singleton_method( rb_mOSMesa, "GetIntegerv", (VALUE (*)(ANYARGS))GetIntegerv, 1 );
 
   rb_cContext = rb_define_class_under( rb_mOSMesa, "Context", rb_cObject );
   rb_define_alloc_func( rb_cContext, alloc_Context );
-  rb_define_method( rb_cContext, "initialize", CreateContext, 2 );
-  rb_define_method( rb_cContext, "Destroy", DestroyContext, 0 );
-  rb_define_method( rb_cContext, "MakeCurrent", MakeCurrent, 4 );
+  rb_define_method( rb_cContext, "initialize", (VALUE (*)(ANYARGS))CreateContext, 2 );
+  rb_define_method( rb_cContext, "Destroy", (VALUE (*)(ANYARGS))DestroyContext, 0 );
+  rb_define_method( rb_cContext, "MakeCurrent", (VALUE (*)(ANYARGS))MakeCurrent, 4 );
 }
+
+#ifdef __cplusplus
+}
+#endif
