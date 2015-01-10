@@ -1,8 +1,7 @@
 #include <ruby.h>
 #include <GL/osmesa.h>
 
-static VALUE rb_mOSMesa;
-static VALUE rb_cContext;
+void Init_gl(VALUE);
 
 static void
 gc_free_Context( OSMesaContext ctx )
@@ -152,6 +151,10 @@ GetIntegerv( VALUE self, VALUE pname )
 void
 Init_osmesa_ext()
 {
+  VALUE rb_mOSMesa;
+  VALUE rb_cContext;
+  VALUE rb_mGl;
+
   rb_mOSMesa = rb_define_module( "OSMesa" );
 
   rb_define_const(rb_mOSMesa, "MAJOR_VERSION", INT2FIX(OSMESA_MAJOR_VERSION));
@@ -194,4 +197,7 @@ Init_osmesa_ext()
   rb_define_method( rb_cContext, "initialize", (VALUE (*)(ANYARGS))CreateContext, 2 );
   rb_define_method( rb_cContext, "Destroy", (VALUE (*)(ANYARGS))DestroyContext, 0 );
   rb_define_method( rb_cContext, "MakeCurrent", (VALUE (*)(ANYARGS))MakeCurrent, 4 );
+
+  rb_mGl = rb_define_module_under( rb_mOSMesa, "Gl" );
+  Init_gl(rb_mGl);
 }
