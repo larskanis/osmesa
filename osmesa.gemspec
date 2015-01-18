@@ -19,6 +19,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
   spec.extensions    = ['ext/extconf.rb']
 
+  spec.add_dependency 'opengl', '~> 0.10.0'
   spec.add_development_dependency "bundler", "~> 1.5"
   spec.add_development_dependency "rake"
   spec.add_development_dependency 'rake-compiler', '~> 0.9.1'

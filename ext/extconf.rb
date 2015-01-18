@@ -66,16 +66,5 @@ find_header( 'GL/osmesa.h' ) or
 have_library( 'OSMesa', 'OSMesaCreateContext', ['GL/osmesa.h'] ) or
     abort "Can't find the OSMesa library (libOSMesa)"
 
-have_header('GL/gl.h') or
-    abort "Can't find the OpenGL header files"
-
-have_header 'stdint.h'
-have_header 'inttypes.h'
-
-have_struct_member 'struct RFloat', 'float_value'
-
-have_type 'int64_t', 'stdint.h'
-have_type 'uint64_t', 'stdint.h'
-
 create_header
 create_makefile( "osmesa_ext" )

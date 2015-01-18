@@ -4,6 +4,8 @@ require 'osmesa'
 class TestContext < Minitest::Test
   include OSMesa
 
+  Gl.default_implementation = OSMesa::Implementation.open
+
   def with_context(width, height)
     ctx = Context.new(RGBA, nil)
     buffer = "rgba" * width * height
