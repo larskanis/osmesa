@@ -22,9 +22,13 @@ require 'opengl'
 
 module OSMesa
   class Implementation < Gl::Implementation
-    DLPATH = "libOSMesa.so"
     def self.open
-      super(DLPATH, "OSMesaGetProcAddress")
+      begin
+        super("libOSMesa.so", "OSMesaGetProcAddress")
+      rescue LoadError
+        dllpath = File.expand_path("../#{RUBY_PLATFORM}/libOSMesa-8.dll", __FILE__)
+        super(dllpath, "OSMesaGetProcAddress")
+      end
     end
   end
 end
