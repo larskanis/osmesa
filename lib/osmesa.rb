@@ -26,6 +26,7 @@ module OSMesa
       begin
         super("libOSMesa.so", "OSMesaGetProcAddress")
       rescue LoadError
+        raise unless RUBY_PLATFORM=~/mingw|mswin/i
         dllpath = File.expand_path("../#{RUBY_PLATFORM}/libOSMesa-8.dll", __FILE__)
         super(dllpath, "OSMesaGetProcAddress")
       end
