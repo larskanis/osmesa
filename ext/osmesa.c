@@ -56,6 +56,8 @@ CreateContext( VALUE self, VALUE format, VALUE sharelist )
     rb_raise(rb_eTypeError, "Error in OSMesaCreateContext");
   DATA_PTR(self) = ctx;
   rb_iv_set(self, "@format", format);
+  rb_iv_set(self, "@buffer_string", Qnil);
+  rb_iv_set(self, "@buffer_addr", Qnil);
   return self;
 }
 
@@ -88,7 +90,7 @@ CreateContext( VALUE self, VALUE format, VALUE sharelist )
  *          width>internal limit or height>internal limit.
  */
 static VALUE
-MakeCurrent( VALUE self, VALUE string_buffer, VALUE type, VALUE width, VALUE height )
+MakeCurrent( VALUE self, VALUE buffer_string, VALUE type, VALUE width, VALUE height )
 {
   OSMesaContext ctx = get_Context(self);
   GLenum gltype = NUM2INT(type);
@@ -97,8 +99,7 @@ MakeCurrent( VALUE self, VALUE string_buffer, VALUE type, VALUE width, VALUE hei
   GLboolean res;
   GLint format;
   long int size, pixsize;
-
-  StringValue(string_buffer);
+  void *p_buffer = StringValuePtr(buffer_string);
 
   format = NUM2INT(rb_iv_get(self, "@format"));
   switch( format ){
@@ -115,15 +116,16 @@ MakeCurrent( VALUE self, VALUE string_buffer, VALUE type, VALUE width, VALUE hei
     case GL_UNSIGNED_SHORT: size = (long int)glwidth * glheight * sizeof(GLushort) * pixsize; break;
     default :               size = (long int)glwidth * glheight * sizeof(GLfloat)  * pixsize; break;
   }
-  rb_str_modify(string_buffer);
-  if( RSTRING_LEN(string_buffer) < size )
-    rb_raise(rb_eArgError, "String buffer is too small: %ld < %ld", RSTRING_LEN(string_buffer), size);
+  rb_str_modify(buffer_string);
+  if( RSTRING_LEN(buffer_string) < size )
+    rb_raise(rb_eArgError, "String buffer is too small: %ld < %ld", RSTRING_LEN(buffer_string), size);
 
-  res = OSMesaMakeCurrent( ctx, RSTRING_PTR(string_buffer), gltype, glwidth, glheight );
+  res = OSMesaMakeCurrent( ctx, p_buffer, gltype, glwidth, glheight );
   if( res != GL_TRUE )
     rb_raise(rb_eArgError, "Error in OSMesaMakeCurrent");
 
-  rb_iv_set(self, "@buffer", string_buffer);
+  rb_iv_set(self, "@buffer_string", buffer_string);
+  rb_iv_set(self, "@buffer_addr", LL2NUM((long long)p_buffer));
   return Qnil;
 }
 
@@ -194,4 +196,6 @@ Init_osmesa_ext()
   rb_define_method( rb_cContext, "initialize", (VALUE (*)(ANYARGS))CreateContext, 2 );
   rb_define_method( rb_cContext, "Destroy", (VALUE (*)(ANYARGS))DestroyContext, 0 );
   rb_define_method( rb_cContext, "MakeCurrent", (VALUE (*)(ANYARGS))MakeCurrent, 4 );
+  rb_define_attr( rb_cContext, "buffer_string", 1, 0 );
+  rb_define_attr( rb_cContext, "buffer_addr", 1, 0 );
 }

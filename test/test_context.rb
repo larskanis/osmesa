@@ -7,6 +7,8 @@ class TestContext < Minitest::Test
   def test_create_and_destroy
     ctx = Context.new(RGBA, nil)
     assert_kind_of Context, ctx
+    assert_nil ctx.buffer_string
+    assert_nil ctx.buffer_addr
     ctx.Destroy
   end
 
@@ -26,6 +28,8 @@ class TestContext < Minitest::Test
     ctx = Context.new(RGB, nil)
     buffer = "rgb" * 4
     ctx.MakeCurrent(buffer, GL::GL_UNSIGNED_BYTE, 2, 2)
+    assert_same buffer, ctx.buffer_string
+    assert_operator ctx.buffer_addr, :>, 0
   end
 
   def test_make_current_large_buffer
