@@ -9,12 +9,14 @@ if enable_config('win32-cross')
   LLVM_VERSION = ENV['LLVM_VERSION'] || '3.5.1'
   LLVM_SOURCE_URI = "http://llvm.org/releases/#{LLVM_VERSION}/llvm-#{LLVM_VERSION}.src.tar.xz"
 
+  host = RbConfig::CONFIG["host_alias"].empty? ? RbConfig::CONFIG["host"] : RbConfig::CONFIG["host_alias"]
+  # i586-mingw32msvc is too old to build llvm
+  host = 'i686-w64-mingw32' if host == 'i586-mingw32msvc'
+
   llvmrecipe = MiniPortile.new("llvm", LLVM_VERSION)
   llvmrecipe.files = [LLVM_SOURCE_URI]
   llvmrecipe.target = portsdir = File.expand_path('../../ports', __FILE__)
-  # Prefer host_alias over host in order to use i586-mingw32msvc as
-  # correct compiler prefix for cross build, but use host if not set.
-  llvmrecipe.host = RbConfig::CONFIG["host_alias"].empty? ? RbConfig::CONFIG["host"] : RbConfig::CONFIG["host_alias"]
+  llvmrecipe.host = host
   llvmrecipe.configure_options = [
     "-C",
     "--enable-optimized",
@@ -37,9 +39,7 @@ if enable_config('win32-cross')
   recipe = MiniPortile.new("libosmesa", LIBOSMESA_VERSION)
   recipe.files = [LIBOSMESA_SOURCE_URI]
   recipe.target = portsdir = File.expand_path('../../ports', __FILE__)
-  # Prefer host_alias over host in order to use i586-mingw32msvc as
-  # correct compiler prefix for cross build, but use host if not set.
-  recipe.host = RbConfig::CONFIG["host_alias"].empty? ? RbConfig::CONFIG["host"] : RbConfig::CONFIG["host_alias"]
+  recipe.host = host
   recipe.configure_options = [
     "--disable-xvmc",
     "--disable-glx",

@@ -52,3 +52,13 @@ ENV['RUBY_CC_VERSION'].to_s.split(':').each do |ruby_version|
     sh "x86_64-w64-mingw32-strip -S tmp/x64-mingw32/stage/lib/#{ruby_version[/^\d+\.\d+/]}/osmesa_ext.so"
   end
 end
+
+desc "Build windows binary gems per rake-compiler-dock."
+task "gem:windows" do
+  require "rake_compiler_dock"
+  RakeCompilerDock.sh <<-EOT
+    sudo apt-get update &&
+    sudo apt-get install -y python &&
+    rake cross native gem MAKE='nice make -j`nproc` LLVM_CROSS_COMPILING=0' RUBY_CC_VERSION=2.2.2
+  EOT
+end
