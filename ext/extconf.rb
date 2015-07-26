@@ -1,4 +1,5 @@
 require 'mkmf'
+require 'fileutils'
 
 if enable_config('win32-cross')
   require "mini_portile"
@@ -26,6 +27,14 @@ if enable_config('win32-cross')
     "--disable-libffi",
     "--host=#{llvmrecipe.host}",
     ]
+  class << llvmrecipe
+    def compile
+      Dir.chdir(work_path) do
+        FileUtils.rm "include/llvm/Config/config.h", verbose: true
+      end
+      super
+    end
+  end
 
   checkpoint = File.join(portsdir, "#{llvmrecipe.name}-#{llvmrecipe.version}-#{llvmrecipe.host}.installed")
   unless File.exist?(checkpoint)

@@ -58,7 +58,7 @@ task "gem:windows" do
   require "rake_compiler_dock"
   RakeCompilerDock.sh <<-EOT
     sudo apt-get update &&
-    sudo apt-get install -y python &&
-    rake cross native gem MAKE='nice make -j`nproc` LLVM_CROSS_COMPILING=0' RUBY_CC_VERSION=2.2.2
+    sudo apt-get install -y python flex &&
+    rake cross native gem MAKE='nice make -j`nproc`' RUBY_CC_VERSION=2.2.2
   EOT
 end
