@@ -16,14 +16,15 @@ See [API-docs](http://www.rubydoc.info/gems/osmesa) for more information about t
 Install osmesa library and header files:
 
 * on Ubuntu/Debian:
-
-    sudo apt-get install libosmesa6-dev
-    
+```
+$ sudo apt-get install libosmesa6-dev
+```    
 * on Windows: No need to install dependencies - the binary gem includes everything
 
 Install the gem:
-
-    $ gem install osmesa
+```
+$ gem install osmesa
+```
 
 ## Usage Example
 
