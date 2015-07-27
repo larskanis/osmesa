@@ -57,6 +57,16 @@ The raw RGBA image buffer is written to a PNG image file with the help of the ch
     png = ChunkyPNG::Image.from_rgba_stream(width, height, buffer)
     png.save('test.png')
 
+
+## Build Windows fat binary gems
+
+This project makes use of [rake-compiler-dock](https://github.com/rake-compiler/rake-compiler-dock) for building binary Windows gems. This is done by the following rake task:
+
+    $ rake gem:windows
+
+After download and compile, there should be some files in the pkg directory: `pkg/osmesa-{VERSION}-{PLATFORM}.gem`
+
+
 ## Contributing
 
 1. Fork it ( http://github.com/larskanis/osmesa/fork )
