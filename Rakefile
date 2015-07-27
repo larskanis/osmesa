@@ -27,17 +27,20 @@ Rake::ExtensionTask.new do |ext|
   ext.cross_compiling do |spec|
     plat = spec.platform
     dlls = Dir["tmp/#{plat}/#{ext.name}/*/*.dll"].map{|dll| File.basename(dll) }.uniq
-    spec.files += dlls.map{|dll| "lib/#{plat}/#{dll}" }
+    spec.files += dlls.map{|dll| "lib/#{dll}" }
 
-    directory "tmp/#{plat}/stage/lib/#{plat}/"
+    directory "tmp/#{plat}/stage/lib/"
     dlls.each do |dll|
       ENV['RUBY_CC_VERSION'].to_s.split(':').each do |ruby_version|
-        file "tmp/#{plat}/stage/lib/#{plat}/#{dll}" => ["tmp/#{plat}/stage/lib/#{plat}/", "tmp/#{plat}/#{ext.name}/#{ruby_version}/#{dll}"] do
-          cp "tmp/#{plat}/#{ext.name}/#{ruby_version}/#{dll}", "tmp/#{plat}/stage/lib/#{plat}"
-          sh "x86_64-w64-mingw32-strip", "tmp/#{plat}/stage/lib/#{plat}/#{dll}"
+        # Not all DLLs are required for all ruby versions
+        next unless File.exist?("tmp/#{plat}/#{ext.name}/#{ruby_version}/#{dll}")
+
+        file "tmp/#{plat}/stage/lib/#{dll}" => ["tmp/#{plat}/stage/lib/", "tmp/#{plat}/#{ext.name}/#{ruby_version}/#{dll}"] do
+          cp "tmp/#{plat}/#{ext.name}/#{ruby_version}/#{dll}", "tmp/#{plat}/stage/lib"
+          sh "x86_64-w64-mingw32-strip", "tmp/#{plat}/stage/lib/#{dll}"
         end
       end
-      file "lib/#{plat}/#{dll}" => "tmp/#{plat}/stage/lib/#{plat}/#{dll}"
+      file "lib/#{dll}" => "tmp/#{plat}/stage/lib/#{dll}"
     end
   end
 end
@@ -59,6 +62,6 @@ task "gem:windows" do
   RakeCompilerDock.sh <<-EOT
     sudo apt-get update &&
     sudo apt-get install -y python flex &&
-    rake cross native gem MAKE='nice make -j`nproc`' RUBY_CC_VERSION=2.2.2
+    rake cross native gem MAKE='nice make -j`nproc`' RUBY_CC_VERSION=1.9.3:2.0.0:2.1.6:2.2.2
   EOT
 end

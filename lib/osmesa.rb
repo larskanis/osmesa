@@ -10,7 +10,7 @@ rescue LoadError
 
     # Set the PATH environment variable, so that libpq.dll can be found.
     old_path = ENV['PATH']
-    ENV['PATH'] = "#{File.expand_path("../#{RUBY_PLATFORM}", __FILE__)};#{old_path}"
+    ENV['PATH'] = "#{File.expand_path("..", __FILE__)};#{old_path}"
     require "#{major_minor}/osmesa_ext"
     ENV['PATH'] = old_path
   else
@@ -27,7 +27,7 @@ module OSMesa
         super("libOSMesa.so", "OSMesaGetProcAddress")
       rescue LoadError
         raise unless RUBY_PLATFORM=~/mingw|mswin/i
-        dllpath = File.expand_path("../#{RUBY_PLATFORM}/libOSMesa-8.dll", __FILE__)
+        dllpath = File.expand_path("../libOSMesa-8.dll", __FILE__)
         super(dllpath, "OSMesaGetProcAddress")
       end
     end
