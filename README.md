@@ -18,7 +18,7 @@ Install osmesa library and header files:
 * on Ubuntu/Debian:
 ```
 $ sudo apt-get install libosmesa6-dev
-```    
+```
 * on Windows: No need to install dependencies - the binary gem includes everything
 
 Install the gem:
@@ -38,18 +38,18 @@ The raw RGBA image buffer is written to a PNG image file with the help of the ch
     width, height = 100, 70
     ctx = OSMesa::Context.new(OSMesa::RGBA, nil)
     buffer = "rgba" * width * height
-    ctx.MakeCurrent(buffer, GL::GL_UNSIGNED_BYTE, width, height)
+    ctx.MakeCurrent(buffer, GL::UNSIGNED_BYTE, width, height)
 
-    GL.implementation = OSMesa::Implementation.open
-    GL.MatrixMode(GL::GL_MODELVIEW)
+    OSMesa.load_lib
+    GL.MatrixMode(GL::MODELVIEW)
     GL.LoadIdentity()
 
-    GL.Clear(GL::GL_COLOR_BUFFER_BIT)
+    GL.Clear(GL::COLOR_BUFFER_BIT)
 
     GL.Color4ub(0xff, 0x00, 0x00, 0xff)
-    GL.Begin(GL::GL_LINES)
-    GL.Vertex(0.5, 0.5)
-    GL.Vertex(-0.5, -0.5)
+    GL.Begin(GL::LINES)
+    GL.Vertex2f(0.5, 0.5)
+    GL.Vertex2f(-0.5, -0.5)
     GL.End
 
     GL.Flush()

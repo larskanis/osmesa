@@ -2,29 +2,27 @@ require 'minitest/autorun'
 require 'osmesa'
 
 class TestContext < Minitest::Test
-  include OSMesa
-
-  Gl.implementation = OSMesa::Implementation.open
+  OSMesa.load_lib
 
   def with_context(width, height)
-    ctx = Context.new(RGBA, nil)
+    ctx = OSMesa::Context.new(OSMesa::RGBA, nil)
     buffer = "rgba" * width * height
-    ctx.MakeCurrent(buffer, GL::GL_UNSIGNED_BYTE, width, height)
+    ctx.MakeCurrent(buffer, GL::UNSIGNED_BYTE, width, height)
     yield ctx, buffer
     ctx.Destroy
   end
 
   def test_buffer_image
     with_context(2, 2) do |ctx, buffer|
-      GL.MatrixMode(GL::GL_MODELVIEW)
+      GL.MatrixMode(GL::MODELVIEW)
       GL.LoadIdentity()
 
-      GL.Clear(GL::GL_COLOR_BUFFER_BIT)
+      GL.Clear(GL::COLOR_BUFFER_BIT)
 
-      GL.Begin(GL::GL_LINES)
+      GL.Begin(GL::LINES)
       GL.Color4ub(0x80, 0x90, 0xa0, 0xb0)
-      GL.Vertex(-1, -1)
-      GL.Vertex(1, 1)
+      GL.Vertex2i(-1, -1)
+      GL.Vertex2i(1, 1)
       GL.End
 
       GL.Flush()
@@ -38,7 +36,7 @@ class TestContext < Minitest::Test
 
   def test_dynamic_loader
     with_context(2, 2) do
-      shader = GL.CreateShader(GL::GL_VERTEX_SHADER)
+      shader = GL.CreateShader(GL::VERTEX_SHADER)
       GL.DeleteShader(shader)
     end
   end
