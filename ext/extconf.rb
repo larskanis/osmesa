@@ -1,14 +1,14 @@
 require 'mkmf'
 require 'fileutils'
 
-if enable_config('win32-cross')
-  require "mini_portile"
+if enable_config('cross')
+  require "mini_portile2"
 
   LIBOSMESA_VERSION = ENV['LIBOSMESA_VERSION'] || '10.4.2'
-  LIBOSMESA_SOURCE_URI = "ftp://ftp.freedesktop.org/pub/mesa/#{LIBOSMESA_VERSION}/MesaLib-#{LIBOSMESA_VERSION}.tar.bz2"
+  LIBOSMESA_SOURCE_URI = "https://archive.mesa3d.org/older-versions/10.x/#{LIBOSMESA_VERSION}/MesaLib-#{LIBOSMESA_VERSION}.tar.bz2"
 
   LLVM_VERSION = ENV['LLVM_VERSION'] || '3.5.1'
-  LLVM_SOURCE_URI = "http://llvm.org/releases/#{LLVM_VERSION}/llvm-#{LLVM_VERSION}.src.tar.xz"
+  LLVM_SOURCE_URI = "http://releases.llvm.org/#{LLVM_VERSION}/llvm-#{LLVM_VERSION}.src.tar.xz"
 
   host = RbConfig::CONFIG["host_alias"].empty? ? RbConfig::CONFIG["host"] : RbConfig::CONFIG["host_alias"]
   # i586-mingw32msvc is too old to build llvm
