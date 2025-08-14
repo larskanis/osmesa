@@ -1,0 +1,80 @@
+name: OSMesa for Ruby
+concurrency:
+  group: "${{github.workflow}}-${{github.ref}}"
+  cancel-in-progress: true
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 5 * * 3" # At 05:00 on Wednesday # https://crontab.guru/#0_5_*_*_3
+  push:
+    branches:
+      - master
+    tags:
+      - "*.*.*"
+  pull_request:
+    types: [opened, synchronize]
+    branches:
+      - "*"
+
+jobs:
+  source_gem:
+    name: Source gem
+
+    strategy:
+      fail-fast: false
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4"
+          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+
+      - name: Build osmesa.gem
+        run: |
+          bundle exec rake gem
+
+      - name: Upload binary gem
+        uses: actions/upload-artifact@v4
+        with:
+          name: gem-ruby
+          path: pkg/*.gem
+
+  job_test_source:
+    name: Src (${{matrix.ruby}}, ${{matrix.os}})
+    needs: source_gem
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+#          - windows
+          - ubuntu
+#          - macos
+        ruby:
+          - "3.4"
+          - "2.7"
+          - "head"
+
+    runs-on: ${{ matrix.os }}-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby-pkgs@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          apt-get: libosmesa6-dev          # Ubuntu
+      - run: ruby --version
+      - name: Download gem
+        uses: actions/download-artifact@v4
+        with:
+          name: gem-ruby
+
+      - name: Install gem
+        run: gem install *.gem --verbose
+
+      - name: bundle install
+        run: bundle install
+
+      - name: Run tests
+        run: rake -rosmesa test
