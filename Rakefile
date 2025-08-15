@@ -85,7 +85,7 @@ PLATFORMS.each do |platform|
 	task "gem:native:#{platform}" => "gem:native:prepare" do
 		RakeCompilerDock.sh <<-EOT, platform: platform
       sudo apt-get update &&
-      sudo apt-get install -y python flex &&
+      sudo apt-get install -y ninja-build meson python3 bison flex &&
       bundle install --local &&
       rake native:#{platform} pkg/#{spec.full_name}-#{platform}.gem MAKEOPTS=-j`nproc` RUBY_CC_VERSION=#{RakeCompilerDock.ruby_cc_version("~>2.7", "~>3.0")}
 		EOT
