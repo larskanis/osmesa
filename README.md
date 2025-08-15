@@ -1,3 +1,18 @@
+
+Warning: OSMesa was removed from mesa-25 [here](https://gitlab.freedesktop.org/mesa/mesa/-/commit/027ccd96) stating:
+
+```
+Remove osmesa
+
+It's redundant with EGL surfaceless and it doesn't have much use.
+
+It's also available from the amber branch, so distros should get it from
+there if they want to continue packaging it.
+```
+
+Unfortunately there seems to be no egl binding for ruby so far.
+
+
 [![Build Status](https://travis-ci.org/larskanis/osmesa.svg?branch=master)](https://travis-ci.org/larskanis/osmesa)
 
 # OSMesa - Off-screen Rendering
