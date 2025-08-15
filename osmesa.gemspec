@@ -22,7 +22,8 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'opengl-bindings2', '~> 2.0'
   spec.add_development_dependency "bundler", ">= 1.5"
   spec.add_development_dependency "rake"
-  spec.add_development_dependency 'rake-compiler', '~> 0.9.1'
-  spec.add_development_dependency 'rake-compiler-dock', '~> 0.4.3'
+  spec.add_development_dependency 'rake-compiler', '~> 1.0'
+  spec.add_development_dependency 'rake-compiler-dock', '~> 1.0'
   spec.add_development_dependency 'minitest', '~> 5.3'
+  spec.add_development_dependency 'mini_portile2', '~> 2.0'
 end
