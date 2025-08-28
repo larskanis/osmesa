@@ -9,6 +9,25 @@ end
 
 spec = Gem::Specification.load('osmesa.gemspec')
 
+PLATFORMS = %w[
+  aarch64-linux-gnu
+  aarch64-linux-musl
+  arm-linux-gnu
+  arm-linux-musl
+  arm64-darwin
+  x64-mingw-ucrt
+  x64-mingw32
+  x86-linux-gnu
+  x86-linux-musl
+  x86-mingw32
+  x86_64-darwin
+  x86_64-linux-gnu
+  x86_64-linux-musl
+]
+# Will be available with rake-compiler-dock-1.10:
+#   aarch64-mingw-ucrt
+
+
 # Rake-compiler task
 Rake::ExtensionTask.new do |ext|
   ext.name           = 'osmesa_ext'
@@ -18,9 +37,9 @@ Rake::ExtensionTask.new do |ext|
   ext.source_pattern = "*.{c,h}"
 
   ext.cross_compile = true
-  ext.cross_platform = ['x86-mingw32', 'x64-mingw32']
+  ext.cross_platform = PLATFORMS
   ext.cross_config_options += [
-    "--enable-win32-cross",
+    "--enable-cross",
   ]
 
   # Add dependent DLLs to the cross gems
@@ -45,23 +64,32 @@ Rake::ExtensionTask.new do |ext|
   end
 end
 
-# To reduce the gem file size strip mingw32 dlls before packaging
-ENV['RUBY_CC_VERSION'].to_s.split(':').each do |ruby_version|
-  task "tmp/x86-mingw32/stage/lib/#{ruby_version[/^\d+\.\d+/]}/osmesa_ext.so" do |t|
-    sh "i686-w64-mingw32-strip -S tmp/x86-mingw32/stage/lib/#{ruby_version[/^\d+\.\d+/]}/osmesa_ext.so"
-  end
+task 'gem:native:prepare' do
+	require 'io/console'
+	require 'rake_compiler_dock'
 
-  task "tmp/x64-mingw32/stage/lib/#{ruby_version[/^\d+\.\d+/]}/osmesa_ext.so" do |t|
-    sh "x86_64-w64-mingw32-strip -S tmp/x64-mingw32/stage/lib/#{ruby_version[/^\d+\.\d+/]}/osmesa_ext.so"
-  end
+	# Copy gem signing key and certs to be accessible from the docker container
+	mkdir_p 'build/gem'
+	sh "cp ~/.gem/gem-*.pem build/gem/ || true"
+	sh "bundle package"
+	begin
+		OpenSSL::PKey.read(File.read(File.expand_path("~/.gem/gem-private_key.pem")), ENV["GEM_PRIVATE_KEY_PASSPHRASE"] || "")
+	rescue OpenSSL::PKey::PKeyError
+		ENV["GEM_PRIVATE_KEY_PASSPHRASE"] = STDIN.getpass("Enter passphrase of gem signature key: ")
+		retry
+	end
 end
 
-desc "Build windows binary gems per rake-compiler-dock."
-task "gem:windows" do
-  require "rake_compiler_dock"
-  RakeCompilerDock.sh <<-EOT
-    sudo apt-get update &&
-    sudo apt-get install -y python flex &&
-    rake cross native gem MAKE='nice make -j`nproc`' RUBY_CC_VERSION=1.9.3:2.0.0:2.1.6:2.2.2
-  EOT
+PLATFORMS.each do |platform|
+	desc "Build fat binary gem for platform #{platform}"
+	task "gem:native:#{platform}" => "gem:native:prepare" do
+		RakeCompilerDock.sh <<-EOT, platform: platform
+      sudo apt-get update &&
+      sudo apt-get install -y ninja-build meson python3 bison flex &&
+      bundle install --local &&
+      rake native:#{platform} pkg/#{spec.full_name}-#{platform}.gem MAKEOPTS=-j`nproc` RUBY_CC_VERSION=#{RakeCompilerDock.ruby_cc_version("~>2.7", "~>3.0")}
+		EOT
+	end
+	desc "Build the native binary gems"
+	multitask 'gem:native' => "gem:native:#{platform}"
 end
